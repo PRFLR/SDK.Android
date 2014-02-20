@@ -9,3 +9,12 @@ HOW TO USE
 4 - Устанавливаем таймеры:
   PRFLRWrapper.begin(timerName); начинает таймер с заданным именем.
   PRFLRWrapper.end(timerName, info); завершает таймер с заданным именем и передает данные на сервер(включая строку info).
+Пример: 
+  PRFLRWrapper.init(Контекст);
+  PRFLRWrapper.begin("doAnything");
+  try {
+      Thread.sleep(1000);
+  } catch(InterruptedException ex) {
+    Thread.currentThread().interrupt();
+  }
+  PRFLRWrapper.end("doAnything", "success");
