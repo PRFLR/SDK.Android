@@ -1,4 +1,4 @@
-package prflrwrapper.prflr;
+package org.prflr.sdk;
 
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
@@ -6,13 +6,15 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.util.Log;
+import org.prflr.sdk.PRFLRSender;
 
-public class PRFLRWrapper{
-    private PRFLRWrapper() {
+
+public final class PRFLR{
+    private PRFLR() {
     }
 
     public static void init(Context c){
-        if(PRFLR.init)
+        if(PRFLRSender.init)
             return;
         Log.d("PRFLR", "Init");
         PackageInfo pInfo;
@@ -30,20 +32,28 @@ public class PRFLRWrapper{
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }
-        String apiKey = inf.metaData.getString("apiKey");
+        String apiKey = inf.metaData.getString("org.prflr.apikey");
         String source = version;
         try {
-            PRFLR.init(source, apiKey);
+            PRFLRSender.init(source, apiKey);
         } catch (Exception e) {
             Log.d("PRFLR", e.toString());
         }
     }
     public static void setOveflowCounter(int value) {
-        PRFLR.overflowCount = value;
+        PRFLRSender.overflowCount = value;
     }
     public static void begin(String timerName) {
         try {
-            PRFLR.begin(timerName);
+            PRFLRSender.begin(timerName);
+        } catch (Exception e) {
+            Log.d("PRFLR", e.toString());
+        }
+    }
+
+    public static void end(String timerName) {
+        try {
+            PRFLRSender.end(timerName);
         } catch (Exception e) {
             Log.d("PRFLR", e.toString());
         }
@@ -51,7 +61,7 @@ public class PRFLRWrapper{
 
     public static void end(String timerName, String info) {
         try {
-            PRFLR.end(timerName, info);
+            PRFLRSender.end(timerName, info);
         } catch (Exception e) {
             Log.d("PRFLR", e.toString());
         }

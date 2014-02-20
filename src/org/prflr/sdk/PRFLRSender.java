@@ -13,7 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 
-public class PRFLRSender {
+public final class PRFLRSender {
 
     private static String source = null;
     private static String apiKey = null;
@@ -75,7 +75,6 @@ public class PRFLRSender {
 
     /**
      * Starts timer with given name.
-ing all useful data
      * (delta-time, info you supplied to end(), thread name, etc.) to prflr.org
      */
     public static void begin(String timerName) {
@@ -89,7 +88,7 @@ ing all useful data
     }
 
     public static void end(String timerName) {
-        PRFLR.end(timerName, null);
+        PRFLRSender.end(timerName, null);
     }
 
     /**

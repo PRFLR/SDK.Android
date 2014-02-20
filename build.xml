@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<project name="ActiveAndroid" default="dist" basedir=".">
+<project name="PRFLR" default="dist" basedir=".">
 
 	<property name="dist.dir"  value="dist" />
     <property name="src.dir"   value="src" />
