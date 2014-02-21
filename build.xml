@@ -27,6 +27,6 @@
 	</target>
 		
 	<target name="package" depends="init, compile">
-		<jar destfile="${dist.dir}/ActiveAndroid.jar" basedir="${build.dir}"/>
+		<jar destfile="${dist.dir}/PRFLR.jar" basedir="${build.dir}"/>
 	</target>
 </project>

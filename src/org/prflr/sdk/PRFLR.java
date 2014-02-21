@@ -14,27 +14,14 @@ public final class PRFLR{
     }
 
     public static void init(Context c){
-        if(PRFLRSender.init)
-            return;
+        if(PRFLRSender.init) return;
         Log.d("PRFLR", "Init");
-        PackageInfo pInfo;
-        String version;
         try {
-            pInfo = c.getPackageManager().getPackageInfo(c.getPackageName(), 0);
-            version = pInfo.versionName;
-        } catch (PackageManager.NameNotFoundException e) {
-            Log.d("PRFLR", e.toString());
-            version = "?";
-        }
-        ApplicationInfo inf = null;
-        try {
-            inf = c.getPackageManager().getApplicationInfo(c.getPackageName(), PackageManager.GET_META_DATA);
-        } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
-        }
-        String apiKey = inf.metaData.getString("org.prflr.apikey");
-        String source = version;
-        try {
+            PackageManager pm = c.getPackageManager();
+            String version = pm.getPackageInfo(c.getPackageName(), 0).versionName;
+            ApplicationInfo  inf = pm.getApplicationInfo(c.getPackageName(), PackageManager.GET_META_DATA);
+            String apiKey = inf.metaData.getString("org.prflr.apikey");
+            String source = getDeviceName() + " " + version;
             PRFLRSender.init(source, apiKey);
         } catch (Exception e) {
             Log.d("PRFLR", e.toString());
