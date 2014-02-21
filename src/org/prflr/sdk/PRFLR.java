@@ -2,11 +2,9 @@ package org.prflr.sdk;
 
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.util.Log;
-import org.prflr.sdk.PRFLRSender;
 
 
 public final class PRFLR{
@@ -27,9 +25,11 @@ public final class PRFLR{
             Log.d("PRFLR", e.toString());
         }
     }
+
     public static void setOveflowCounter(int value) {
         PRFLRSender.overflowCount = value;
     }
+
     public static void begin(String timerName) {
         try {
             PRFLRSender.begin(timerName);

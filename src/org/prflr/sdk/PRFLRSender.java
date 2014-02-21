@@ -98,9 +98,9 @@ public final class PRFLRSender {
      * That's one of downsides of this realisations. You can't remove timer from another thread,
      * unless you changed it's name.
      */
-    public static void end(String timerName, String info) {
+    public static void end(final String timerName, final String info) {
         if (!init) return;
-        String thread = Long.toString(Thread.currentThread().getId());
+        final String thread = Long.toString(Thread.currentThread().getId());
 
         Long startTime = timers.get(thread + timerName);
 
@@ -113,8 +113,14 @@ public final class PRFLRSender {
 
         Long now = System.nanoTime();
         Long precision = (long) Math.pow(10, 3);
-        Double diffTime = (double) Math.round((double) (now - startTime) / 1000000 * precision) / precision;
-        send(timerName, diffTime, thread, info);
+        final Double diffTime = (double) Math.round((double) (now - startTime) / 1000000 * precision) / precision;
+
+        // send to exclusive thread
+        new Thread(new Runnable() {
+            public void run() {
+                send(timerName, diffTime, thread, info);
+            }
+        }).start();
     }
 
     private static String cut(String s, Integer maxLength) {
