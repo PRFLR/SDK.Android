@@ -13,22 +13,9 @@ public class TestActivity extends Activity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        new InitTask().execute();
+        PRFLR.init(this);
+        new SomeLongTask().execute();
 
-    }
-
-    /* Initializing PRFLR. Should be done in separate thread, as we are receiving server's IP and opening connection. */
-    private class InitTask extends AsyncTask<Void, Void, Void> {
-
-        @Override protected Void doInBackground(Void... voids) {
-            PRFLR.init(TestActivity.this);
-            return null;
-        }
-
-        @Override protected void onPostExecute(Void aVoid) {
-            // Chaining calls.
-            new SomeLongTask().execute();
-        }
     }
 
     /* Doing something with all the things we've got now. */
@@ -36,7 +23,14 @@ public class TestActivity extends Activity {
 
         @Override protected void onPreExecute() {
             /* Let's set up the timer... */
-            PRFLR.begin("TestTimer");
+            PRFLR.begin("TestTimer1");
+            PRFLR.begin("TestTimer2");
+            PRFLR.begin("TestTimer3");
+            PRFLR.begin("TestTimer4");
+            PRFLR.begin("TestTimer5");
+            PRFLR.begin("TestTimer6");
+            PRFLR.begin("TestTimer7");
+            PRFLR.begin("TestTimer8");
             Log.v(TAG, "Started!");
         }
 
@@ -53,7 +47,14 @@ public class TestActivity extends Activity {
 
         @Override protected void onPostExecute(Void aVoid) {
             /* ...and then send the timer to prflr.org. Easy. */
-            PRFLR.end("TestTimer", "success");
+            PRFLR.end("TestTimer1", "success");
+            PRFLR.end("TestTimer2", "success");
+            PRFLR.end("TestTimer3", "success");
+            PRFLR.end("TestTimer4", "success");
+            PRFLR.end("TestTimer5", "success");
+            PRFLR.end("TestTimer6", "success");
+            PRFLR.end("TestTimer7", "success");
+            PRFLR.end("TestTimer8", "success");
             Log.v(TAG, "Finished and sent!");
         }
 

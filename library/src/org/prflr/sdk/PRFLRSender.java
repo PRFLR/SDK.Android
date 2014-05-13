@@ -13,6 +13,8 @@ class PRFLRSender {
     private static PRFLRSender instance;
     private static Integer overflowCount = 100;
 
+    private QueryExecutor executor;
+
     private String source = null;
     private String apiKey = null;
 
@@ -33,42 +35,50 @@ class PRFLRSender {
     private Map<String, Long> timers;
 
     public PRFLRSender() {
-        timers = new ConcurrentHashMap<String, Long>();
+        timers = new ConcurrentHashMap<>();
+        executor = new QueryExecutor();
     }
 
     /**
      * Connects to prflr.org and starts communication.
      */
-    synchronized static void init(String source, String apiKey) {
+    synchronized static void init(final String source, final String apiKey) {
         if (initialized()) Log.w(TAG, "Already initialized!");
-
-        if (apiKey == null)
-            Log.e(TAG, "ApiKey is null");
-        if (source == null)
-            Log.e(TAG, "Source is null");
-
-
         instance = new PRFLRSender();
 
-        try {
-            instance.ip = InetAddress.getByName("prflr.org");
-        } catch (UnknownHostException e) {
-            Log.e(TAG, "Initialization error", e);
-            instance = null;
-            return;
-        }
+        instance.executor.execute(new Runnable() {
+            @Override public void run() {
 
-        try {
-            instance.socket = new DatagramSocket();
-        } catch (SocketException e) {
-            Log.e(TAG, "Initialization error", e);
-            instance = null;
-            return;
-        }
+                if (apiKey == null)
+                    Log.e(TAG, "ApiKey is null");
+                if (source == null)
+                    Log.e(TAG, "Source is null");
 
-        instance.apiKey = cut(apiKey, 32);
-        instance.source = cut(source, 32);
+                try {
+                    instance.ip = InetAddress.getByName("prflr.org");
+                } catch (UnknownHostException e) {
+                    Log.e(TAG, "Initialization error", e);
 
+                    instance.executor.cancel();
+                    instance = null;
+                    return;
+                }
+
+                try {
+                    instance.socket = new DatagramSocket();
+                } catch (SocketException e) {
+                    Log.e(TAG, "Initialization error", e);
+
+                    instance.executor.cancel();
+                    instance = null;
+                    return;
+                }
+
+                instance.apiKey = cut(apiKey, 32);
+                instance.source = cut(source, 32);
+
+            }
+        });
     }
 
     static boolean initialized() {
@@ -130,16 +140,15 @@ class PRFLRSender {
         final Double diffTime = (double) Math.round((double) (now - startTime) / 1000000 * precision) / precision;
 
         // send to exclusive thread
-        new Thread() {
-            public void run() {
+        executor.execute(new Runnable() {
+            @Override public void run() {
                 send(timerName, diffTime, thread, info);
             }
-        }.start();
+        });
     }
 
     private void send(String timerName, Double time, String thread, String info) {
         try {
-
             byte[] raw_data = (
                     cut(thread, 32) + "|"
                             + source + "|"
