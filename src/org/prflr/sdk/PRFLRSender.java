@@ -3,62 +3,44 @@ package org.prflr.sdk;
 import android.util.Log;
 
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.SocketException;
-import java.net.UnknownHostException;
-import java.nio.charset.Charset;
+import java.net.*;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 
+class PRFLRSender {
 
-public final class PRFLRSender {
+    private static final String TAG = "PRFLRSender";
+    private static PRFLRSender instance;
+    private static Integer overflowCount = 100;
 
-    private static String source = null;
-    private static String apiKey = null;
+    private String source = null;
+    private String apiKey = null;
 
     /**
      * How many timers can be running at once.
      */
-    public static Integer overflowCount = 100;
-
     /**
      * PRFLR.org's IP
      */
-    private static InetAddress ip;
-
+    private InetAddress ip;
     /**
      * Our pocket GMS.
      */
-    private static DatagramSocket socket;
+    private DatagramSocket socket;
     /**
      * Timer storage. Should add Timer class in some point of future.
      */
-    private static ConcurrentHashMap<String, Long> timers;
-    /**
-     * IDK, timer counter?
-     */
-    private static AtomicInteger counter = new AtomicInteger(0);
+    private Map<String, Long> timers;
 
-    private static String TAG = "PRFLRSender";
-    public static boolean init = false;
+    public PRFLRSender() {
+        timers = new ConcurrentHashMap<String, Long>();
+    }
 
     /**
      * Connects to prflr.org and starts communication.
      */
-    public static void init(String source, String apiKey) {
-        try {
-            ip = InetAddress.getByName("prflr.org");
-        } catch (UnknownHostException e) {
-            Log.e(TAG, e.getMessage());
-        }
-
-        try {
-            socket = new DatagramSocket();
-        } catch (SocketException e) {
-            Log.e(TAG, e.getMessage());
-        }
+    synchronized static void init(String source, String apiKey) {
+        if (initialized()) Log.w(TAG, "Already initialized!");
 
         if (apiKey == null)
             Log.e(TAG, "ApiKey is null");
@@ -66,72 +48,98 @@ public final class PRFLRSender {
             Log.e(TAG, "Source is null");
 
 
-        PRFLRSender.apiKey = cut(apiKey, 32);
-        PRFLRSender.source = cut(source, 32);
-        PRFLRSender.timers = new ConcurrentHashMap<String, Long>();
+        instance = new PRFLRSender();
 
-        init = true;
+        try {
+            instance.ip = InetAddress.getByName("prflr.org");
+        } catch (UnknownHostException e) {
+            Log.e(TAG, "Initialization error", e);
+            instance = null;
+            return;
+        }
+
+        try {
+            instance.socket = new DatagramSocket();
+        } catch (SocketException e) {
+            Log.e(TAG, "Initialization error", e);
+            instance = null;
+            return;
+        }
+
+        instance.apiKey = cut(apiKey, 32);
+        instance.source = cut(source, 32);
+
+    }
+
+    static boolean initialized() {
+        return instance != null;
+    }
+
+    static PRFLRSender getInstance() {
+        if (instance != null)
+            return instance;
+        else {
+            Log.e(TAG, "PRFLR is not initialized yet! Call init(), please.");
+            return null;
+        }
+    }
+
+    static void setOverflowCount(int overflowCount) {
+        PRFLRSender.overflowCount = overflowCount;
     }
 
     /**
      * Starts timer with given name.
      * (delta-time, info you supplied to end(), thread name, etc.) to prflr.org
      */
-    public static void begin(String timerName) {
-        if (!init) return;
+    public void begin(String timerName) {
+
         //overflow control
-        if (counter.incrementAndGet() > overflowCount) {
+        if (timers.size() > overflowCount) {
+            Log.w(TAG, "Too many timers, deleted all of them. Please, check for missing end() calls." +
+                    "If that's not a problem, try increasing overflowCount via PRFLR.setOverflowCount().");
             timers.clear();
-            counter.set(0);
         }
+
         timers.put(Long.toString(Thread.currentThread().getId()) + timerName, System.nanoTime());
     }
 
-    public static void end(String timerName) {
-        PRFLRSender.end(timerName, null);
+    public void end(String timerName) {
+        end(timerName, null);
     }
 
     /**
      * Sends all useful data
      * (delta-time, info you supplied to end(), thread name, etc.) to prflr.org
      * Should be invoked in thread with the same with thread where begin() was invoked name.
-     * That's one of downsides of this realisations. You can't remove timer from another thread,
-     * unless you changed it's name.
+     * That's one of downsides of this realisations. You can't remove timer from another thread.
      */
-    public static void end(final String timerName, final String info) {
-        if (!init) return;
+    public void end(final String timerName, final String info) {
         final String thread = Long.toString(Thread.currentThread().getId());
 
-        Long startTime = timers.get(thread + timerName);
+        Long startTime = timers.remove(thread + timerName);
 
         if (startTime == null) {
+            Log.w(TAG, "Can't find timer with name '" + timerName + "'");
             return;
         }
 
-        counter.decrementAndGet();
-        timers.remove(thread + timerName);
-
         Long now = System.nanoTime();
         Long precision = (long) Math.pow(10, 3);
+
         final Double diffTime = (double) Math.round((double) (now - startTime) / 1000000 * precision) / precision;
 
         // send to exclusive thread
-        new Thread(new Runnable() {
+        new Thread() {
             public void run() {
                 send(timerName, diffTime, thread, info);
             }
-        }).start();
+        }.start();
     }
 
-    private static String cut(String s, Integer maxLength) {
-        if (s.length() < maxLength)
-            return s;
-        else
-            return s.substring(0, maxLength);
-    }
-
-    private static void send(String timerName, Double time, String thread, String info) {
+    private void send(String timerName, Double time, String thread, String info) {
         try {
+
             byte[] raw_data = (
                     cut(thread, 32) + "|"
                             + source + "|"
@@ -140,10 +148,19 @@ public final class PRFLRSender {
                             + cut(info, 32) + "|"
                             + apiKey
 
-            ).getBytes(Charset.forName("UTF-8"));
+            ).getBytes("UTF-8");
+
             socket.send(new DatagramPacket(raw_data, raw_data.length, ip, 4000));
+
         } catch (IOException e) {
             Log.e(TAG, e.getMessage());
         }
+    }
+
+    private static String cut(String s, Integer maxLength) {
+        if (s.length() < maxLength)
+            return s;
+        else
+            return s.substring(0, maxLength);
     }
 }
