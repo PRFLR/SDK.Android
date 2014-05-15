@@ -9,4 +9,4 @@ before-script:
     - cd library
 
 script:
-    - gradle assembleRelease
+    - gradle assemble
