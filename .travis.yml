@@ -6,5 +6,5 @@ android:
         - build-tools-19.0.3
 
 script:
-    cd library
-    gradle assembleRelease
+    - cd library
+    - gradle assembleRelease
