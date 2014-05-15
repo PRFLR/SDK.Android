@@ -15,7 +15,7 @@ apply plugin: 'android-library'
 android {
 
     compileSdkVersion 19
-    buildToolsVersion "19"
+    buildToolsVersion "19.0.3"
 
     sourceSets {
 
@@ -26,8 +26,6 @@ android {
             resources.srcDirs = ['res']
 
         }
-
-        main.setRoot("library")
 
     }
 
