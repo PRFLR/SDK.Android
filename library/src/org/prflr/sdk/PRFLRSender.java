@@ -167,6 +167,8 @@ class PRFLRSender {
     }
 
     private static String cut(String s, Integer maxLength) {
+        if (s == null)
+            return "";
         if (s.length() < maxLength)
             return s;
         else
