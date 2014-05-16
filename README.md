@@ -1,35 +1,28 @@
-PRFLR SDK.Android
+PRFLR Android SDK
 =================
 
-##HOW TO USE
+###How-to
 
-1. Скачиваем библиотеку и добавляем в проект.
-2. В AndroidManifest, в секцию application добавляем следующую строку <meta-data android:name="apiKey" android:value="ваш_Api_ключ"/>
-3. Делаем PRFLRWrapper.init(Context)
-4. Устанавливаем таймеры:
+1. Download and add the library.
+2. In AndroidManifest.xml add the following to application section:
+    ```xml
 
-```java
+    <meta-data android:name="org.prflr.apikey" android:value="your_api_key"/>
+    ```
+3. Run somethere in startup:
+    ```java
 
-// начинает таймер с заданным именем.
-PRFLR.begin(timerName);
-// завершает таймер с заданным именем и передает данные на сервер(включая строку info).
-PRFLR.end(timerName, info);
+    PRFLR.init(context)
+    ```
 
-```
-
-Пример:
-
-```java
-
-PRFLR.init(context);
-PRFLR.begin("doAnything");
-
-try {
-    Thread.sleep(1000);
-} catch(InterruptedException ex) {
-    Thread.currentThread().interrupt();
-}
-
-PRFLR.end("doAnything", "success");
-
-```
+4. Add timers wherever you need them:
+    ```java
+    
+    // Starts timer with name "timerName".
+    PRFLR.begin(timerName);
+    
+    // Here we're doing something, which we want to measure
+    
+    // Stops and sends timer with additional info.
+    PRFLR.end(timerName, info);
+    ```
