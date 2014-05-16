@@ -5,8 +5,8 @@ PRFLR SDK.Android
 
 1. Скачиваем библиотеку и добавляем в проект.
 2. В AndroidManifest, в секцию application добавляем следующую строку ```<meta-data android:name="org.prflr.apikey" android:value="ваш_Api_ключ"/>```
-3. Делаем PRFLRWrapper.init(Context)
-4. Устанавливаем таймеры:
+3. Делаем PRFLRWrapper.init(Context) в Application или в стартовой  Activity
+4. Устанавливаем таймеры в нужных вам местах кода:
 
 ```java
 
