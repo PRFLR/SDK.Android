@@ -35,7 +35,7 @@ public final class PRFLR {
 
             String apiKey = inf.metaData.getString("org.prflr.apikey");
 
-            String source = version + "." +getDeviceName();
+            String source = version + " " + getDeviceName();
             PRFLRSender.init(source, apiKey);
 
         } catch (Exception e) {
@@ -87,9 +87,18 @@ public final class PRFLR {
         String version = Build.VERSION.RELEASE;
 
         if (model.startsWith(manufacturer)) {
-            return model + version;
+            return "[" + model + "] " + version;
         } else {
-            return manufacturer + model + version;
+            return "[" + cut(manufacturer, 5) + model + "] " + version;
         }
+    }
+    
+    private static String cut(String s, Integer maxLength) {
+        if (s == null)
+            return "";
+        if (s.length() < maxLength)
+            return s;
+        else
+            return s.substring(0, maxLength);
     }
 }
