@@ -87,12 +87,12 @@ public final class PRFLR {
         String version = Build.VERSION.RELEASE;
 
         if (model.startsWith(manufacturer)) {
-            return "[" + model + "] " + version;
+            return "[" + model + ":" + Build.SERIAL + "] " + version;
         } else {
-            return "[" + cut(manufacturer, 5) + model + "] " + version;
+            return "[" + cut(manufacturer, 5) + model + ":" + Build.SERIAL + "] " + version;
         }
     }
-    
+
     private static String cut(String s, Integer maxLength) {
         if (s == null)
             return "";
