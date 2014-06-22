@@ -36,4 +36,5 @@ tmp
 # Gradle
 .gradle
 /build
+library/build/
 /out
