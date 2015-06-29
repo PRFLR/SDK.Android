@@ -16,7 +16,8 @@ class PRFLRSender {
     private QueryExecutor executor;
 
     private String source = null;
-    private String apiKey = null;
+    private String key = null;
+    private String port = null;
 
     /**
      * How many timers can be running at once.
@@ -48,35 +49,26 @@ class PRFLRSender {
 
         instance.executor.execute(new Runnable() {
             @Override public void run() {
-
+                String host;
                 if (apiKey == null)
                     Log.e(TAG, "ApiKey is null");
                 if (source == null)
                     Log.e(TAG, "Source is null");
-
                 try {
-                    instance.ip = InetAddress.getByName("prflr.org");
-                } catch (UnknownHostException e) {
-                    Log.e(TAG, "Initialization error", e);
-
-                    instance.executor.cancel();
-                    instance = null;
-                    return;
-                }
-
-                try {
+                    instance.source = cut(source, 32);
+                    String[] parts = apiKey.split("@");
+                    instance.key  = parts[0];
+                    parts = apiKey.split(":");
+                    host = parts[0];
+                    instance.port = parts[1];
+                    instance.ip = InetAddress.getByName(host);
                     instance.socket = new DatagramSocket();
-                } catch (SocketException e) {
+                } catch (Exception e) {
                     Log.e(TAG, "Initialization error", e);
-
                     instance.executor.cancel();
                     instance = null;
                     return;
                 }
-
-                instance.apiKey = cut(apiKey, 32);
-                instance.source = cut(source, 32);
-
             }
         });
     }
@@ -155,11 +147,11 @@ class PRFLRSender {
                             + cut(timerName, 48) + "|"
                             + Double.toString(time) + "|"
                             + cut(info, 32) + "|"
-                            + apiKey
+                            + key
 
             ).getBytes("UTF-8");
 
-            socket.send(new DatagramPacket(raw_data, raw_data.length, ip, 4000));
+            socket.send(new DatagramPacket(raw_data, raw_data.length, ip, port));
 
         } catch (IOException e) {
             Log.e(TAG, e.getMessage());
