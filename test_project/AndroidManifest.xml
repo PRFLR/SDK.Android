@@ -23,7 +23,7 @@
 
         </activity>
 
-        <meta-data android:name="org.prflr.apikey" android:value="testKeyOnly"/>
+        <meta-data android:name="org.prflr.apikey" android:value="testKeyOnly@prflr.org:4000"/>
 
     </application>
 
