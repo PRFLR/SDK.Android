@@ -58,7 +58,7 @@ class PRFLRSender {
                     instance.source = cut(source, 32);
                     String[] parts = apiKey.split("@");
                     instance.key  = parts[0];
-                    parts = apiKey.split(":");
+                    parts = parts[1].split(":");
                     host = parts[0];
                     instance.port = parts[1];
                     instance.ip = InetAddress.getByName(host);
