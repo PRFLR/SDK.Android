@@ -56,7 +56,7 @@ class PRFLRSender {
                     Log.e(TAG, "Source is null");
                 try {
                     instance.source = cut(source, 32);
-                    String apiKeyWithoutPrefix = apiKey.substring(apiKey.indexOf("://") + 1);
+                    String apiKeyWithoutPrefix = apiKey.substring(apiKey.indexOf("://") + 3);
                     String[] parts = apiKeyWithoutPrefix.split("@");
                     instance.key  = parts[0];
                     parts = parts[1].split(":");
