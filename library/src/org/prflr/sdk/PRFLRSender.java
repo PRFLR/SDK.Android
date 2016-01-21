@@ -17,7 +17,7 @@ class PRFLRSender {
 
     private String source = null;
     private String key = null;
-    private String port = null;
+    private Integer port = null;
 
     /**
      * How many timers can be running at once.
@@ -56,11 +56,12 @@ class PRFLRSender {
                     Log.e(TAG, "Source is null");
                 try {
                     instance.source = cut(source, 32);
-                    String[] parts = apiKey.split("@");
+                    String apiKeyWithoutPrefix = apiKey.substring(apiKey.indexOf("://") + 1);
+                    String[] parts = apiKeyWithoutPrefix.split("@");
                     instance.key  = parts[0];
                     parts = parts[1].split(":");
                     host = parts[0];
-                    instance.port = parts[1];
+                    instance.port = Integer.valueOf(parts[1]);
                     instance.ip = InetAddress.getByName(host);
                     instance.socket = new DatagramSocket();
                 } catch (Exception e) {
