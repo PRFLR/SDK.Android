@@ -131,7 +131,7 @@ public final class PRFLR {
     }
 
     private static String getDeviceUID(Context context)
-    throws NoSuchAlgorithmException {
+            throws NoSuchAlgorithmException {
         return
                 md5(""
                                 + (Build.VERSION.SDK_INT >= 9 ? Build.SERIAL : "")
