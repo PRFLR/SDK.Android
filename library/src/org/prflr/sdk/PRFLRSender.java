@@ -104,7 +104,7 @@ class PRFLRSender {
             timers.clear();
         }
 
-        timers.put(Long.toString(Thread.currentThread().getId()) + timerName, System.nanoTime());
+        timers.put(timerName, System.nanoTime());
     }
 
     public void end(String timerName) {
@@ -120,7 +120,7 @@ class PRFLRSender {
     public void end(final String timerName, final String info) {
         final String thread = Long.toString(Thread.currentThread().getId());
 
-        Long startTime = timers.remove(thread + timerName);
+        Long startTime = timers.remove(timerName);
 
         if (startTime == null) {
             Log.w(TAG, "Can't find timer with name '" + timerName + "'");
