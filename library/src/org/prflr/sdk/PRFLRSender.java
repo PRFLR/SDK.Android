@@ -140,7 +140,7 @@ class PRFLRSender {
         });
     }
 
-    private void send(String timerName, Double time, String thread, String info) {
+    void send(String timerName, Double time, String thread, String info) {
         try {
             byte[] raw_data = (
                     cut(thread + "." + PRFLR.UID, 32) + "|"
