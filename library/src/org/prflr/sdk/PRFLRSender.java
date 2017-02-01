@@ -56,7 +56,7 @@ class PRFLRSender {
                     Log.e(TAG, "Source is null");
                 try {
                     instance.source = cut(source, 32);
-                    String apiKeyWithoutPrefix = apiKey.substring(apiKey.indexOf("://") + 1);
+                    String apiKeyWithoutPrefix = apiKey.substring(apiKey.indexOf("://") + 3);
                     String[] parts = apiKeyWithoutPrefix.split("@");
                     instance.key  = parts[0];
                     parts = parts[1].split(":");
@@ -104,7 +104,7 @@ class PRFLRSender {
             timers.clear();
         }
 
-        timers.put(Long.toString(Thread.currentThread().getId()) + timerName, System.nanoTime());
+        timers.put(timerName, System.nanoTime());
     }
 
     public void end(String timerName) {
@@ -120,7 +120,7 @@ class PRFLRSender {
     public void end(final String timerName, final String info) {
         final String thread = Long.toString(Thread.currentThread().getId());
 
-        Long startTime = timers.remove(thread + timerName);
+        Long startTime = timers.remove(timerName);
 
         if (startTime == null) {
             Log.w(TAG, "Can't find timer with name '" + timerName + "'");
@@ -140,7 +140,7 @@ class PRFLRSender {
         });
     }
 
-    void send(String timerName, Double time, String thread, String info) {
+    private void send(String timerName, Double time, String thread, String info) {
         try {
             byte[] raw_data = (
                     cut(thread + "." + PRFLR.UID, 32) + "|"
