@@ -24,6 +24,7 @@ public class PRFLRTimer {
 
         final Double diffTime = (double) Math.round((double) (now - startTime) / 1000000 * precision) / precision;
 
-        PRFLRSender.getInstance().send(timerName, diffTime, thread, info);
+        PRFLRSender prflrSender = PRFLRSender.getInstance();
+        if (prflrSender != null) prflrSender.send(timerName, diffTime, thread, info);
     }
 }
