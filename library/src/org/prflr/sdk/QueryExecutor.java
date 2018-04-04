@@ -47,11 +47,9 @@ class QueryExecutor implements Executor {
         @Override public void run() {
             super.run();
             while (!query.isEmpty() && !cancelled) {
-                Runnable toRun;
                 synchronized (query_lock) {
-                    toRun = query.remove(0);
+                    if(!query.isEmpty()) query.remove(0).run();
                 }
-                toRun.run();
             }
         }
 
